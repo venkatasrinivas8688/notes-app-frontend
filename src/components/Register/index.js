@@ -20,10 +20,12 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log(formDetails);
     if (!formDetails.username || !formDetails.email || !formDetails.password) {
       alert("All fields are required!");
       return;
     }
+
     try {
       const url = "http://localhost:5000/register";
       const options = {
