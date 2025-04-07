@@ -1,43 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
-import EachTask from "../EachTask";
-import Cookies from "js-cookie";
 
-const TaskManager = () => {
-  const [tasksList, setTasksList] = useState([]);
+function TaskManager() {
   const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState([]);
 
-  const onChangeInput = (e) => {
-    setTask(e.target.value);
+  // Load tasks from local storage
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    setTasks(storedTasks);
+  }, []);
+
+  // Save tasks to local storage
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = () => {
+    if (task.trim() !== "") {
+      setTasks([...tasks, task]);
+      setTask("");
+    }
   };
-  const onSubmitTasks = (e) => {
-    e.preventDefault();
 
-    setTasksList((prevState) => [...prevState, task]);
-    Cookies.set("name", task);
-    setTask("");
+  const removeTask = (index) => {
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setTasks(newTasks);
   };
 
   return (
-    <div className="task-manager">
-      <form onSubmit={onSubmitTasks}>
-        <h1 className="heading">Task Manager</h1>
-        <div className="input-elements">
-          <input type="text" value={task} onChange={onChangeInput} required />
-          <div className="submit-card">
-            <button className="btn" type="submit">
-              Submit
-            </button>
-          </div>
-        </div>
-      </form>
-      <div className="tasks">
-        {tasksList.map((eachItem) => (
-          <EachTask task={eachItem} />
-        ))}
+    <div className="container">
+      <h1 className="heading">Task Manager</h1>
+      <div className="input-section">
+        <input
+          type="text"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+          placeholder="Add a new task..."
+        />
+        <button onClick={addTask}>Add</button>
       </div>
+      <ul className="task-list">
+        {tasks.map((t, index) => (
+          <li key={index}>
+            {t}
+            <button onClick={() => removeTask(index)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default TaskManager;
